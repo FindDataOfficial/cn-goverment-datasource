@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gov-scraw"
+dynamic = ["version"]
+description = "Scrapers + datasource registry for Chinese central-government ministry open-information archives."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "cli-anything" }]
+dependencies = [
+    "scrapling",
+    "sqlalchemy>=2.0",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+]
+
+[project.urls]
+Homepage = "https://github.com/FindDataOfficial/cn-goverment-datasource"
+Repository = "https://github.com/FindDataOfficial/cn-goverment-datasource"
+Changelog = "https://github.com/FindDataOfficial/cn-goverment-datasource/releases"
+Issues = "https://github.com/FindDataOfficial/cn-goverment-datasource/issues"
+
+[project.scripts]
+gov-scraw = "gov_scraw.cli:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "gov_scraw.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["gov_scraw*"]
+
+[tool.setuptools.package-data]
+gov_scraw = ["registry/registry.db", "registry/registry.json"]
