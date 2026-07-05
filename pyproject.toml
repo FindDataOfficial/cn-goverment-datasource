@@ -12,7 +12,7 @@ license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "cli-anything" }]
 dependencies = [
-    "scrapling",
+    "scrapling[fetchers]",
     "sqlalchemy>=2.0",
 ]
 classifiers = [
