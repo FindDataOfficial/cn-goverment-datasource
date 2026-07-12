@@ -15,7 +15,7 @@ from urllib.parse import urljoin
 
 from scrapling.fetchers import Fetcher
 
-from gov_scraw.scraw_contract import ScrawColumn, ScrawManifest
+from fd_cn_gov.scraw_contract import ScrawColumn, ScrawManifest
 
 HUB = "https://www.moa.gov.cn/govpublic/"
 ROOT = "https://www.moa.gov.cn/govpublic/"

@@ -27,10 +27,10 @@ jobs:
           python -m venv /tmp/venv
           /tmp/venv/bin/python -m pip install --upgrade pip
           /tmp/venv/bin/python -m pip install dist/*.whl
-          /tmp/venv/bin/gov-scraw --help
-          /tmp/venv/bin/gov-scraw list
+          /tmp/venv/bin/fd-cn-gov --help
+          /tmp/venv/bin/fd-cn-gov list
           # _cmd_list prints one line per registered source (11 total)
-          test "$(/tmp/venv/bin/gov-scraw list | wc -l)" -eq 11
+          test "$(/tmp/venv/bin/fd-cn-gov list | wc -l)" -eq 11
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v4
         with:

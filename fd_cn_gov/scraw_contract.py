@@ -3,7 +3,7 @@
 Every scraper ships a module-level `MANIFEST = ScrawManifest(...)`. The manifest
 is the single source of truth for the script's identity, crawl recipe, and output
 record schema. `build_registry.py` consumes it to write the bundled `registry.db`;
-the read API (`gov_scraw.get_source` / `get_columns`) serves the same shape.
+the read API (`fd_cn_gov.get_source` / `get_columns`) serves the same shape.
 
 Stdlib only (dataclasses + json) — no extra dependency.
 
@@ -13,7 +13,7 @@ path fields (meaningless outside the monorepo). `to_columns_json()` and
 `to_scraw_columns()` — the parts `build_registry` uses — are byte-identical to
 the monorepo so the registry rows match `daas.db` for these sources.
 
-Self-check: `python -m gov_scraw.scraw_contract` runs a round-trip assert.
+Self-check: `python -m fd_cn_gov.scraw_contract` runs a round-trip assert.
 """
 from __future__ import annotations
 
@@ -110,7 +110,7 @@ class ScrawManifest:
 
 
 def _selfcheck() -> None:
-    """Round-trip assert. Run with `python -m gov_scraw.scraw_contract`."""
+    """Round-trip assert. Run with `python -m fd_cn_gov.scraw_contract`."""
     m = ScrawManifest(
         name="demo_src",
         label="Demo",
@@ -140,7 +140,7 @@ def _selfcheck() -> None:
     assert blob["archives"][0]["section"] == "Main", blob["archives"]
     assert blob["type"] == "scraw", blob
     assert "scraper_script" not in blob, "monorepo-path key must be dropped"
-    print("gov_scraw.scraw_contract self-check OK")
+    print("fd_cn_gov.scraw_contract self-check OK")
 
 
 if __name__ == "__main__":

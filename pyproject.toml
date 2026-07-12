@@ -3,7 +3,7 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "gov-scraw"
+name = "fd-cn-gov"
 dynamic = ["version"]
 description = "Scrapers + datasource registry for Chinese central-government ministry open-information archives."
 readme = "README.md"
@@ -36,13 +36,13 @@ Changelog = "https://github.com/FindDataOfficial/cn-goverment-datasource/release
 Issues = "https://github.com/FindDataOfficial/cn-goverment-datasource/issues"
 
 [project.scripts]
-gov-scraw = "gov_scraw.cli:main"
+fd-cn-gov = "fd_cn_gov.cli:main"
 
 [tool.setuptools.dynamic]
-version = { attr = "gov_scraw.__version__" }
+version = { attr = "fd_cn_gov.__version__" }
 
 [tool.setuptools.packages.find]
-include = ["gov_scraw*"]
+include = ["fd_cn_gov*"]
 
 [tool.setuptools.package-data]
-gov_scraw = ["registry/registry.db", "registry/registry.json"]
+fd_cn_gov = ["registry/registry.db", "registry/registry.json"]

@@ -1,18 +1,18 @@
-"""Catalog crawl of MNR (自然资源部) 通知公告 archive.
+"""Catalog crawl of SAFE (国家外汇管理局) 外汇新闻 archive.
 
-The 通知公告 feed at /gk/tzgg/ lists MNR's notices. Items are TRS rows but
-with the date span BEFORE the link:
+The 外汇新闻 feed at /safe/whxw/ is SAFE's rolling news stream. Each item:
 
-    <ul class="ky_open_list"><li><span>2026-06-30</span>
-        <a href="http://gi.mnr.gov.cn/202606/t20260630_2933017.html">...</a></li>
+    <ul><li><dt><a href="/safe/2026/0626/27629.html" title="...">...</a></dt>
+        <dd>2026-06-29</dd></li></ul>
 
-Doc URLs live on the gi.mnr.gov.cn (公开目录) subdomain and carry the TRS
-t<YYYYMMDD>_ token. Pagination is createPageHTML(40): index.html → index_1.html
-→ index_2.html … (404 on overflow), 25 docs/page.
+Pagination is path-based: page 1 = index.html, page N≥2 = index_N.html
+(no offset — page 2 is index_2.html, not index_1.html). The <dd> carries the
+clean YYYY-MM-DD display date; the URL path /YYYY/MMDD/ is a fallback (it can
+lag the display date by a few days).
 
 Default crawl is 50 pages; --all / --max-pages 0 walks until a 404 or empty page.
 
-Run:  uv run --directory mcp/scrapling-uv-mcp python scripts/mnr_tzgg_archive.py [--all|--max-pages N]
+Run:  uv run --directory mcp/scrapling-uv-mcp python scripts/safe_whxw_archive.py [--all|--max-pages N]
 """
 import argparse
 import json
@@ -23,39 +23,39 @@ from urllib.parse import urljoin, urlparse
 
 from scrapling.fetchers import Fetcher
 
-from gov_scraw.scraw_contract import ScrawArchive, ScrawColumn, ScrawManifest
+from fd_cn_gov.scraw_contract import ScrawArchive, ScrawColumn, ScrawManifest
 
-BASE = "https://www.mnr.gov.cn"
+BASE = "https://www.safe.gov.cn"
 ARCHIVES = [
-    ("通知公告", "通知公告", f"{BASE}/gk/tzgg/"),
+    ("外汇新闻", "外汇新闻", f"{BASE}/safe/whxw/index.html"),
 ]
-PER_PAGE = 25
+PER_PAGE = 20
 SLEEP = 0.3
 
 MANIFEST = ScrawManifest(
-    name="mnr_tzgg_archive",
-    label="MNR Notice Archive (自然资源部通知公告)",
+    name="safe_whxw_archive",
+    label="SAFE News Archive (外汇局外汇新闻)",
     url=ARCHIVES[0][2],
     description=(
-        "Catalog crawl of the Ministry of Natural Resources (自然资源部) 通知公告 "
-        "archive at /gk/tzgg/. Each record is one listed document (doc URLs on the "
-        "gi.mnr.gov.cn 公开目录 subdomain) with section, title (link text), date "
-        "(span date; URL t<YYYYMMDD>_ token fallback), url, doc_type. Paginates the "
-        "TRS createPageHTML(40) convention: index.html → index_{N-1}.html (404 on "
-        "overflow), 25 docs/page. Default crawl = 50 pages; --all for full history."
+        "Catalog crawl of the State Administration of Foreign Exchange (国家外汇管理局) "
+        "外汇新闻 archive at /safe/whxw/ — SAFE's rolling news stream. Each record is "
+        "one listed document with section, title, date (from <dd> display date; URL "
+        "path /YYYY/MMDD/ fallback), url, doc_type. Paginates index.html → index_N.html "
+        "(page N = index_N.html, no offset, 404 on overflow). Default crawl = 50 pages; "
+        "--all for full history."
     ),
     columns=[
         ScrawColumn(name="section", nullable=False,
-                    description="archive section: 通知公告 (from seed config)",
+                    description="archive section: 外汇新闻 (from seed config)",
                     source_field="meta:section", semantic_type="category"),
         ScrawColumn(name="title", nullable=False,
-                    description="document title (from <a> link text — MNR items carry no title attr)",
-                    source_field="a:text", semantic_type="title"),
+                    description='document title (from <a title="..."> attribute)',
+                    source_field="a@title", semantic_type="title"),
         ScrawColumn(name="date", type="date", nullable=True,
-                    description="publish date YYYY-MM-DD (span date before link; URL t<YYYYMMDD>_ token fallback)",
-                    source_field="span", semantic_type="date"),
+                    description="publish date YYYY-MM-DD (from <dd> display date; URL path /YYYY/MMDD/ fallback)",
+                    source_field="dd", semantic_type="date"),
         ScrawColumn(name="url", primary_key=True, nullable=False,
-                    description="absolute document URL on gi.mnr.gov.cn (.html)",
+                    description="absolute document URL (.html)",
                     source_field="a@href", semantic_type="url"),
         ScrawColumn(name="doc_type", nullable=False,
                     description="document format derived from URL extension: html or pdf",
@@ -63,52 +63,44 @@ MANIFEST = ScrawManifest(
     ],
     archives=[ScrawArchive(section=s, subsection=sub, url=u) for (s, sub, u) in ARCHIVES],
     crawl={
-        "scope": "通知公告 feed at /gk/tzgg/ (docs on gi.mnr.gov.cn)",
+        "scope": "外汇新闻 feed at /safe/whxw/",
         "default_max_pages": 50,
         "all_flag": True,
         "per_page": PER_PAGE,
-        "pagination": 'TRS createPageHTML(40): index.html (page 1) → index_{N-1}.html (page N), 404 on overflow',
-        "item_selector": "ul.ky_open_list > li",
-        "fields": {"title": "a:text", "date": "span (before link)", "url": "a@href"},
+        "pagination": "index.html (page 1) → index_N.html (page N, no offset), 404 on overflow",
+        "item_selector": "div.list_conr li (requires dt a + dd)",
+        "fields": {"title": "dt a@title", "date": "dd", "url": "dt a@href"},
     },
 )
 
-_DATE_TOKEN = re.compile(r"t(\d{4})(\d{2})(\d{2})_")
-
 
 def page_url(base_index: str, page_no: int) -> str:
+    """page 1 = base/index.html; page N≥2 = base/index_N.html (no offset)."""
     if page_no <= 1:
         return base_index
-    base = base_index.rstrip("/") + "/"
-    return f"{base}index_{page_no - 1}.html"
+    base = base_index.rsplit("index.html", 1)[0]
+    return f"{base}index_{page_no}.html"
 
 
 def doc_type(url: str) -> str:
     return "pdf" if urlparse(url).path.lower().endswith(".pdf") else "html"
 
 
-def url_date(url: str) -> str:
-    m = _DATE_TOKEN.search(url)
-    return f"{m.group(1)}-{m.group(2)}-{m.group(3)}" if m else ""
-
-
 def parse_archive(page, base_url, section):
-    for li in page.css("ul.ky_open_list > li"):
-        anchors = li.css("a")
-        if not anchors:
-            continue
-        a = anchors[0]
+    # ponytail: scope to the news container — bare `ul li` also matches nav menus.
+    # Real news items live under div.list_conr and have both <dt><a> and <dd>.
+    for li in page.css("div.list_conr li"):
+        dts = li.css("dt a")
+        dds = li.css("dd")
+        if not dts or not dds:
+            continue  # skip nav items (no dt link + dd date pair)
+        a = dts[0]
         href = (a.attrib.get("href") or "").strip()
         if not href:
             continue
         url = urljoin(base_url, href)
-        title = (a.text or "").strip()
-        date = ""
-        spans = li.css("span")
-        if spans:
-            date = (spans[0].text or "").strip()
-        if not date:
-            date = url_date(url)
+        title = (a.attrib.get("title") or a.text or "").strip()
+        date = (dds[0].text or "").strip()
         yield {"section": section, "title": title, "date": date, "url": url, "doc_type": doc_type(url)}
 
 

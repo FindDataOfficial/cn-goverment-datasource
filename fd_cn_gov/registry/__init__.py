@@ -2,7 +2,7 @@
 
 `list_sources()`, `get_source(name)`, `get_columns(name)` open the bundled
 SQLite read-only and return dataclasses. The DB is a derived artifact built by
-`gov_scraw.build_registry` from the scripts' MANIFESTs.
+`fd_cn_gov.build_registry` from the scripts' MANIFESTs.
 """
 from __future__ import annotations
 
@@ -40,7 +40,7 @@ def _connect() -> sqlite3.Connection:
     if not _DB_PATH.exists():
         raise RuntimeError(
             f"registry.db not found at {_DB_PATH}. "
-            f"Run `gov-scraw build-registry` to generate it."
+            f"Run `fd-cn-gov build-registry` to generate it."
         )
     conn = sqlite3.connect(f"file:{_DB_PATH}?mode=ro", uri=True)
     conn.row_factory = sqlite3.Row

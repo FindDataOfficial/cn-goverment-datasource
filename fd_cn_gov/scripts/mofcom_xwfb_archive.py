@@ -21,7 +21,7 @@ from urllib.parse import urljoin, urlparse
 
 from scrapling.fetchers import Fetcher
 
-from gov_scraw.scraw_contract import ScrawArchive, ScrawColumn, ScrawManifest
+from fd_cn_gov.scraw_contract import ScrawArchive, ScrawColumn, ScrawManifest
 
 BASE = "https://www.mofcom.gov.cn"
 LANDING = f"{BASE}/xwfb/index.html"

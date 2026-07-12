@@ -30,7 +30,7 @@ from urllib.parse import urljoin, urlparse
 
 from scrapling.fetchers import Fetcher
 
-from gov_scraw.scraw_contract import ScrawArchive, ScrawColumn, ScrawManifest
+from fd_cn_gov.scraw_contract import ScrawArchive, ScrawColumn, ScrawManifest
 
 ARCHIVES = [
     ("通知公告", "通知通告", "https://www.mof.gov.cn/gkml/bulinggonggao/tongzhitonggao/"),

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""gov-scraw CLI: crawl, list, describe, build-registry.
+"""fd-cn-gov CLI: crawl, list, describe, build-registry.
 
 Usage:
-  gov-scraw crawl <name> [--max-pages N | --all]   # run a scraper
-  gov-scraw list                                     # list registered sources
-  gov-scraw describe <name>                          # show a source + its columns
-  gov-scraw build-registry                           # regenerate registry.db/json
+  fd-cn-gov crawl <name> [--max-pages N | --all]   # run a scraper
+  fd-cn-gov list                                     # list registered sources
+  fd-cn-gov describe <name>                          # show a source + its columns
+  fd-cn-gov build-registry                           # regenerate registry.db/json
 """
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ import importlib
 import sys
 from typing import Optional
 
-from gov_scraw.registry import list_sources, get_source, get_columns
+from fd_cn_gov.registry import list_sources, get_source, get_columns
 
 SCRIPT_NAMES = [
     "mee_gsgg_archive", "mem_tzgg_archive", "mnr_tzgg_archive",
@@ -38,7 +38,7 @@ def _cmd_crawl(args) -> int:
         script_argv.append("--all")
     elif args.max_pages is not None:
         script_argv += ["--max-pages", str(args.max_pages)]
-    mod = importlib.import_module(f"gov_scraw.scripts.{name}")
+    mod = importlib.import_module(f"fd_cn_gov.scripts.{name}")
     old = sys.argv
     sys.argv = script_argv
     try:
@@ -78,14 +78,14 @@ def _cmd_describe(args) -> int:
 
 
 def _cmd_build_registry(args) -> int:
-    from gov_scraw.build_registry import build
+    from fd_cn_gov.build_registry import build
     print(build())
     return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
-        prog="gov-scraw",
+        prog="fd-cn-gov",
         description="Chinese ministry open-information scrapers + registry.",
     )
     sub = ap.add_subparsers(dest="cmd", required=True)

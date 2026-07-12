@@ -23,7 +23,7 @@ from urllib.parse import urljoin, urlparse
 
 from scrapling.fetchers import Fetcher
 
-from gov_scraw.scraw_contract import ScrawArchive, ScrawColumn, ScrawManifest
+from fd_cn_gov.scraw_contract import ScrawArchive, ScrawColumn, ScrawManifest
 
 BASE = "https://www.mem.gov.cn"
 ARCHIVE_INDEX = f"{BASE}/gk/tzgg/"

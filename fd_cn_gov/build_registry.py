@@ -5,7 +5,7 @@ The MANIFEST is the source of truth; the DB is derived. Idempotent: re-running
 produces a byte-identical DB (delete-then-insert per source, deterministic
 JSON sort_keys).
 
-Usage: `python -m gov_scraw.build_registry` or `gov-scraw build-registry`.
+Usage: `python -m fd_cn_gov.build_registry` or `fd-cn-gov build-registry`.
 """
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ JSON_PATH = REGISTRY_DIR / "registry.json"
 def _load_manifests() -> list:
     manifests = []
     for name in SCRIPT_NAMES:
-        mod = importlib.import_module(f"gov_scraw.scripts.{name}")
+        mod = importlib.import_module(f"fd_cn_gov.scripts.{name}")
         m = getattr(mod, "MANIFEST", None)
         if m is None or m.name != name:
             raise RuntimeError(f"{name}: MANIFEST missing or name mismatch")
